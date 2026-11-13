@@ -27,8 +27,10 @@ header{height:120px;width:1080px;max-width:100%;display:grid;grid-template-colum
 const dateEl = document.getElementById('datetime');
 const weatherEl = document.getElementById('weather');
 function updateDate(){
-  const str = new Intl.DateTimeFormat('de-DE',{timeZone:'Europe/Berlin',weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date());
-  dateEl.textContent = str + ' Uhr';
+  const now = new Date();
+  const date = new Intl.DateTimeFormat('de-DE',{timeZone:'Europe/Berlin',weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(now);
+  const time = new Intl.DateTimeFormat('de-DE',{timeZone:'Europe/Berlin',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(now);
+  dateEl.textContent = date + ' · ' + time + ' Uhr';
 }
 updateDate(); setInterval(updateDate,15000);
 function symbol(code){if(code===0)return '☀️';if(code<=3)return '⛅';if(code===45||code===48)return '🌫️';if(code>=51&&code<=67)return '🌧️';if(code>=71&&code<=77)return '❄️';if(code>=80&&code<=82)return '🌦️';if(code>=95)return '⛈️';return '🌤️';}
