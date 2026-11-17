@@ -6,22 +6,20 @@
 <title>Zukunftswerkstatt Scherfede e. V. – Stele Kopfzeile</title>
 <style>
   * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; color: #fff; font-family: Arial, Helvetica, sans-serif; }
-  /* Kompakte, zweizeilige Ansicht für Galaxy Signage: 1080 × 120, Auto Scaling ein */
-  .kopf { position: relative; width: 100%; height: 60px; background: #000; overflow: hidden; }
-  .links, .rechts { position: absolute; top: 0; height: 60px; min-width: 0; }
-  .links { left: 12px; right: 51%; }
-  .rechts { left: 49%; right: 12px; text-align: right; }
-  .name, .datum { position: absolute; top: 1px; left: 0; right: 0; font-size: 28px; font-weight: 700; line-height: 33px; white-space: nowrap; }
-  .adresse, .wetter { position: absolute; top: 34px; left: 0; right: 0; font-size: 22px; line-height: 25px; color: #f0f7f2; white-space: nowrap; }
-  .datum { font-size: 26px; }
-  .wetter { font-size: 21px; }
-  @media(max-width: 1000px) {
-    .name { font-size: clamp(14px, 2.6vw, 28px); }
-    .datum { font-size: clamp(13px, 2.4vw, 26px); }
-    .adresse { font-size: clamp(11px, 2.05vw, 22px); }
-    .wetter { font-size: clamp(11px, 1.9vw, 21px); }
-  }
+  html,body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#000; color:#fff; font-family:Arial,Helvetica,sans-serif; }
+  /* 60px innen: Galaxy Signage skaliert diese Vorlage bei 1080x120 mit Auto Scaling. */
+  .kopf { position:relative; width:100%; height:60px; background:#000; overflow:hidden; }
+  .links,.rechts { position:absolute; top:0; height:60px; min-width:0; }
+  .links { left:10px; right:51%; }
+  .rechts { left:49%; right:10px; text-align:right; }
+  .name,.datum,.adresse,.wetter { position:absolute; left:0; right:0; white-space:nowrap; overflow:visible; }
+  .name,.datum { top:0; font-weight:700; line-height:34px; }
+  .adresse,.wetter { top:34px; line-height:25px; color:#f0f7f2; }
+  .name { font-size:34px; }
+  .datum { font-size:31px; }
+  .adresse { font-size:26px; }
+  .wetter { font-size:25px; }
+  /* Keine Media-Query und keine automatische Schriftverkleinerung. */
 </style>
 </head>
 <body>
@@ -41,12 +39,12 @@ const dateEl = document.getElementById('datetime');
 const weatherEl = document.getElementById('weather');
 function updateDate() {
   const now = new Date();
-  const date = new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(now);
-  const time = new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(now);
+  const date = new Intl.DateTimeFormat('de-DE', { timeZone:'Europe/Berlin', weekday:'long', day:'numeric', month:'long', year:'numeric' }).format(now);
+  const time = new Intl.DateTimeFormat('de-DE', { timeZone:'Europe/Berlin', hour:'2-digit', minute:'2-digit', hourCycle:'h23' }).format(now);
   dateEl.textContent = date + ' · ' + time + ' Uhr';
 }
 updateDate();
-setInterval(updateDate, 15000);
+setInterval(updateDate,15000);
 function symbol(code) {
   if (code === 0) return '☀️';
   if (code <= 3) return '⛅';
@@ -59,21 +57,19 @@ function symbol(code) {
 }
 async function updateWeather() {
   try {
-    const url = 'https://api.open-meteo.com/v1/forecast?latitude=51.53&longitude=9.03&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=Europe%2FBerlin&forecast_days=2';
-    const resp = await fetch(url, { cache: 'no-store' });
-    if (!resp.ok) throw new Error('Wetterdienst nicht erreichbar');
-    const data = await resp.json();
-    const current = Math.round(data.current.temperature_2m);
-    const todayHi = Math.round(data.daily.temperature_2m_max[0]);
-    const tomorrowHi = Math.round(data.daily.temperature_2m_max[1]);
-    const tomorrowLo = Math.round(data.daily.temperature_2m_min[1]);
-    weatherEl.textContent = `${symbol(data.current.weather_code)} Jetzt ${current}° · Heute ${todayHi}° · Morgen ${symbol(data.daily.weather_code[1])} ${tomorrowLo}–${tomorrowHi}°C`;
-  } catch (err) {
-    weatherEl.textContent = 'Wetterdaten momentan nicht verfügbar';
-  }
+    const url='https://api.open-meteo.com/v1/forecast?latitude=51.53&longitude=9.03&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=Europe%2FBerlin&forecast_days=2';
+    const resp=await fetch(url,{cache:'no-store'});
+    if(!resp.ok) throw new Error('Wetterdienst nicht erreichbar');
+    const data=await resp.json();
+    const current=Math.round(data.current.temperature_2m);
+    const todayHi=Math.round(data.daily.temperature_2m_max[0]);
+    const tomorrowHi=Math.round(data.daily.temperature_2m_max[1]);
+    const tomorrowLo=Math.round(data.daily.temperature_2m_min[1]);
+    weatherEl.textContent=`${symbol(data.current.weather_code)} Jetzt ${current}° · Heute ${todayHi}° · Morgen ${symbol(data.daily.weather_code[1])} ${tomorrowLo}–${tomorrowHi}°C`;
+  } catch(err) { weatherEl.textContent='Wetterdaten momentan nicht verfügbar'; }
 }
 updateWeather();
-setInterval(updateWeather, 15 * 60 * 1000);
+setInterval(updateWeather,15*60*1000);
 </script>
 </body>
 </html>
